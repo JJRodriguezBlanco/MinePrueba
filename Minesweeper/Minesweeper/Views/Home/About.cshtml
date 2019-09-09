@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Game Rules";
+}
+<h2>@ViewBag.Title.</h2>
+
+<h3>@ViewBag.Input</h3>
+
+<p>
+    The input will consist of an arbitrary number of fields. The first line of each field contains two integers n and m (0 < n, m ≤ 100) which stands for the number of lines and columns of the field respectively. The next n lines contains exactly m characters and represent the field.
+
+    Each safe square is represented by an ‘.’ character (without the quotes) and each mine square is represented by an ‘*’ character (also without the quotes). The first field line where n = m = 0 represents the end of input and should not be processed.
+</p>
+
+<h3>@ViewBag.Output</h3>
+
+<p>
+    For each field, you must print the following message in a line alone:
+
+    Field #x:
+
+    Where x stands for the number of the field (starting from 1). The next n lines should contain the field with the ‘.’ characters replaced by the number of adjacent mines to that square. There must be an empty line between field outputs.
+
+</p>
+
+<div class="row">
+    <div class="col-md-4" >
+        <h3>Sample Input</h3>
+        <h4>4 4</h4>
+        <div>*...</div>
+        <div>....</div>
+        <div>.*..</div>
+        <div>....</div>
+        <h4>3 5</h4>
+        <div>**...</div>
+        <div>.....</div>
+        <div>.*...</div>
+        <h4>0 0</h4>
+    </div>
+    <div class="col-md-4" >
+        <h3>Sample Output</h3>
+
+        <h4>Field #1:</h4>
+        <div>*100</div>
+        <div>2210</div>
+        <div>1*10</div>
+        <div>1110</div>
+
+        <h4>Field #2:</h4>
+        <div>**100</div>
+        <div>33200</div>
+        <div>1*100</div>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+﻿@{
+    ViewBag.Title = "Minesweeper";
+}
+
+
+@Html.Hidden("urlCalculo", @Url.Action("Calculo", "Home"))
+
+<div class="jumbotron" style="text-align: center;">
+    @*<h1>Minesweeper!!!</h1>*@
+    <img src="@Url.Content("~/Images/boom.png")" width="40%" height="40%">
+    <div style="text-align: left;">
+        <p class="lead">Have you ever played Minesweeper? It’s a cute little game which comes within a certain Operating System which name we can’t really remember. Well, the goal of the game is to find where are all the mines within a M × N field. To help you, the game shows a number in a square which tells you how many mines there are adjacent to that square.</p>
+        @Html.ActionLink(HttpUtility.HtmlDecode("Learn more &raquo;"), "About", "Honme", new {@class= "btn btn-primary btn-lg"})
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "frmBoom" }))
+{
+    <h1>Minesweeper</h1>
+
+    <div class="row">
+        <div class="col-md-2">
+            @Html.Label("Parameters Input: ")
+        </div>
+        <div class="col-md-3">
+            @Html.TextBox("TextInput", null, new { @class = "form-control", @onkeypress = " return Mine.Index.IsNumberKeyEnteros(event)" })
+        </div>
+        <div class="col-md-4">
+            <a onclick="Mine.Index.Input();" href="javascript:;" title="jaja" class="btn btn-primary btn-lg" id="jeje">Insert</a>
+        </div>
+    </div>
+    <br>
+    <br>
+    <div class="row">
+        <div class="col-md-4" style="text-align: center;">
+            @Html.Label("--- Input ---")
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-4" style="text-align: center;">
+            @Html.Label("--- Output ---")
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4" style="text-align: center;">
+            @Html.TextArea("formula", "", new { @id = "areaIntput", @class = "k-textbox",@*@disabled = "disabled",*@@cols = "50", @rows = "10", @style = "font-size:30px;"})
+        </div>
+        <div class="col-md-4" style="height: 400px; text-align: center; line-height: 400px; ">
+            <a onclick="Mine.Index.Output();" href="javascript:;" title="jaja" class="btn btn-primary btn-lg" id="jeje">Result</a>
+
+        </div>
+        <div class="col-md-4" style="text-align: center; height:100% ">
+            @Html.TextArea("formula", "", new { @id = "areaOutput", @class = "k-textbox", @disabled = "disabled", @cols = "50", @rows = "10", @style = "font-size:30px;" })
+        </div>
+    </div>
+
+}
+
+
+@Scripts.Render("~/bundles/Index")
