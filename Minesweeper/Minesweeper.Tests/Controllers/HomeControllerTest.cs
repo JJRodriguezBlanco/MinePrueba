@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Web.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Minesweeper;
 using Minesweeper.Controllers;
+using Minesweeper.Models;
 
 namespace Minesweeper.Tests.Controllers
 {
@@ -46,10 +46,10 @@ namespace Minesweeper.Tests.Controllers
             HomeController controller = new HomeController();
 
             // Act
-            JsonResult result = controller.Calculo("44\n*...\n....\n.*..\n....\n35\n**...\n.....\n.*...\n00") as JsonResult;
-
+            JsonResult result = controller.Calculation("44\n*...\n....\n.*..\n....\n35\n**...\n.....\n.*...\n00") as JsonResult;
+            var rt = result.Data as JsonReturnMine;
             // Assert
-            Assert.AreEqual("Field #1\n*100\n2210\n1*10\n1110\n\nField #2\n**100\n33200\n1*100\n\n", result.Data);            
+            Assert.AreEqual("Field #1\n*100\n2210\n1*10\n1110\n\nField #2\n**100\n33200\n1*100\n\n", rt.data);            
         }
 
     }

@@ -12,11 +12,19 @@ namespace Minesweeper.Controllers
 {
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Show the main screen
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Index()
         {
             return View();
         }
 
+        /// <summary>
+        /// Show the rules of the game
+        /// </summary>
+        /// <returns></returns>
         public ActionResult About()
         {
             ViewBag.Input = "Input";
@@ -25,10 +33,11 @@ namespace Minesweeper.Controllers
 
             return View();
         }
+
         /// <summary>
-        /// 
+        /// Solve the exercise by calculating the number of bombs around each square containing a point
         /// </summary>
-        /// <param name="textArea">Son los datos introducidos por el usuario por pantalla</param>
+        /// <param name="textArea">Are the data entered by the user by screen</param>
         /// <returns></returns>
         [HttpPost]
         public ActionResult Calculation(string textArea)
@@ -64,6 +73,10 @@ namespace Minesweeper.Controllers
 
         #region Private
 
+        /// <summary>
+        /// Save the data entered by the user in BBDD
+        /// </summary>
+        /// <param name="lineas">The lines entered by the user</param>
         private void Savebbdd(List<string> lineas)
         {
             using (var ddbb = new MinesweeperEntities())
@@ -86,6 +99,10 @@ namespace Minesweeper.Controllers
             }
         }
 
+        /// <summary>
+        /// Get the data entered by the user of the database
+        /// </summary>
+        /// <returns></returns>
         private List<string> Getbbdd()
         {
             using (var ddbb = new MinesweeperEntities())
@@ -95,6 +112,11 @@ namespace Minesweeper.Controllers
             }
         }
 
+        /// <summary>
+        /// Pass the data to a structure to differentiate the different matrices and the X and Y position of the boxes.
+        /// </summary>
+        /// <param name="lines">The lines entered by the user</param>
+        /// <returns></returns>
         private List<Matrix> TransformationToListMatrix(List<string> lines)
         {
 
@@ -135,6 +157,10 @@ namespace Minesweeper.Controllers
             return listMatrix;
         }
 
+        /// <summary>
+        /// Change the points for the number of bombs around.
+        /// </summary>
+        /// <param name="listMatrix">All the matrices</param>
         private void ChangePointsToNumberOfBombs(List<Matrix> listMatrix)
         {
             //Go through the Matrix List
@@ -148,11 +174,17 @@ namespace Minesweeper.Controllers
             }
         }
 
-        private string NumberOfBombs(Field a, List<Field> campo)
+        /// <summary>
+        /// Change the points for the number of bombs around.
+        /// </summary>
+        /// <param name="field">The field to be resolved</param>
+        /// <param name="listFields">Array field list</param>
+        /// <returns></returns>
+        private string NumberOfBombs(Field field, List<Field> listFields)
         {
-            var row = a.Row;
-            var column = a.Column;
-            var value = a.Value;
+            var row = field.Row;
+            var column = field.Column;
+            var value = field.Value;
 
             if (value == "*")
             {
@@ -161,16 +193,16 @@ namespace Minesweeper.Controllers
             else
             {
                 var listField = new List<Field>();
-                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column - 1));
-                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column));
-                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column + 1));
+                listField.Add(listFields.Find(x => x.Row == row - 1 && x.Column == column - 1));
+                listField.Add(listFields.Find(x => x.Row == row - 1 && x.Column == column));
+                listField.Add(listFields.Find(x => x.Row == row - 1 && x.Column == column + 1));
 
-                listField.Add(campo.Find(x => x.Row == row && x.Column == column + 1));
-                listField.Add(campo.Find(x => x.Row == row && x.Column == column - 1));
+                listField.Add(listFields.Find(x => x.Row == row && x.Column == column + 1));
+                listField.Add(listFields.Find(x => x.Row == row && x.Column == column - 1));
 
-                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column - 1));
-                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column));
-                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column + 1));
+                listField.Add(listFields.Find(x => x.Row == row + 1 && x.Column == column - 1));
+                listField.Add(listFields.Find(x => x.Row == row + 1 && x.Column == column));
+                listField.Add(listFields.Find(x => x.Row == row + 1 && x.Column == column + 1));
 
                 var countBombs = listField.Where(x => x != null).Count(x=> x.Value == "*");
 
@@ -178,6 +210,11 @@ namespace Minesweeper.Controllers
             }
         }
 
+        /// <summary>
+        /// Pass the data to a string to display correctly in the TextArea.
+        /// </summary>
+        /// <param name="listMatrix">All the matrices</param>
+        /// <returns></returns>
         private string TransformationToString(List<Matrix> listMatrix)
         {
             var result = "";
@@ -191,6 +228,7 @@ namespace Minesweeper.Controllers
                     var row = listMatrix[m].Fields.Where(x => x.Row == f).Select(x => x.Value).ToList();
                     result = result + string.Join("", row) + "\n";
                 }
+                result = result + "\n";
             }
 
             return result;
