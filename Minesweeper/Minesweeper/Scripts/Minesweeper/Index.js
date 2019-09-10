@@ -1,113 +1,88 @@
 ﻿var Mine = Mine || {};
 Mine.Index = Mine.Index || (function () {
-    var settings;
-    var selectedElementBanda;
-    var selectedBolsa;
-    var selectedSubBolsa;
-    var isBotonEdit = false;
-    var isCargaMasiva = false;
-    //var excelControl = $("#adjuntar");
-    var uid = "uid";
-    var isChangeUtilizacion = false;
-    var datosContratosBolsa;
-    var datosEditarValidar = {
-        Origen: "",
-        Cluster: "",
-        TipoFichero: ""
-    }
-
     function initSettings() {
-        settings = {
-    
+        settings = { 
             fields: {
-            },
-            forms: {
-            
-            },
-            campos: {
-    
-            },
-            buttons: {
-              
+                textInput: $("#TextInput"),
+                areaInput: $("#AreaIntput"),
+                areaOutput: $("#AreaOutput")
             },
             urls: {
-            
+                urlCalculation: $("#urlCalculation").val()
             }
         };
     }
 
     function input() {
 
-        var text = $("#TextInput").val();
-        var textArea = $("#areaIntput").val();
-        var textoInsertar = "";
+        var text = settings.fields.textInput.val();
+        var textArea = settings.fields.areaInput.val();
+        var textoInsert = "";
 
         if (!isNaN(text) && textArea != "" && text != "00") {
-            textoInsertar = textArea + "\n" + text;
+            textoInsert = textArea + "\n" + text;
         } else {
-            textoInsertar = textArea + text;
+            textoInsert = textArea + text;
         }
 
         
-        $("#areaIntput").text(textoInsertar + "\n");
-        $("#areaIntput").val(textoInsertar + "\n");
-        $("#TextInput").val("");
+        settings.fields.areaInput.text(textoInsert + "\n");
+        settings.fields.areaInput.val(textoInsert + "\n");
+        settings.fields.textInput.val("");
+
     }
 
     function output() {
 
-        var urlCalculo = $("#urlCalculo").val();
-        var textArea = $("#areaIntput").val();
-        var textSerializado = JSON.stringify({ textArea : textArea });
-        //var textSerializado = textArea.serialize();
-
-
         $.ajax({
             type: "POST",
-            url: urlCalculo,
+            url: settings.urls.urlCalculation,
             contentType: "application/json",
-            data: textSerializado,
+            data: JSON.stringify({ textArea: settings.fields.areaInput.val() }),
             success: function (data) {
-                //debugger;
-                $("#areaOutput").text(data);
-                $("#areaOutput").val(data);
+                if (data.IsOk) {
+                    settings.fields.areaOutput.text(data.data);
+                    settings.fields.areaOutput.val(data.data);
+                } else {
+                    bootbox.alert("Error: Check the input parameters, if you have any questions you can check the rules of the game.");
+                }
             },
             error: function () {
-                alert("Error");
+                bootbox.alert("Error: Check the input parameters, if you have any questions you can check the rules of the game.");
             }
         });
 
     }
 
-    function isNumberKeyEnteros(evt) {
-        //Entero con 3 decimales
+    function clearAreas() {     
+        settings.fields.areaInput.val("");
+        settings.fields.areaOutput.val("");
+    }
+
+    function isNumberKeyEnterosAndAsterisk(evt) {
+
         var charCode = (evt.which) ? evt.which : event.keyCode;
 
         if (charCode != 46 && charCode != 42 && charCode > 31 && (charCode < 48 || charCode > 57))
             return false;
         return true;
     }
-
-    //-- Común --//
-    function initEvents() { }
   
-
     function init() {
         initSettings();
-        initEvents();
     }
 
     return {
         Init: init,
         Input: input,
         Output: output,
-        IsNumberKeyEnteros: isNumberKeyEnteros
+        ClearAreas: clearAreas,
+        IsNumberKeyEnterosAndAsterisk: isNumberKeyEnterosAndAsterisk
     };
 })();
 
 $(function () {
     Mine.Index.Init();
-    
 });
 
 

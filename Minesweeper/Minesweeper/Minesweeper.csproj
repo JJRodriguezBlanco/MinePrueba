@@ -151,6 +151,7 @@
       <DependentUpon>Minesweeper.edmx</DependentUpon>
     </Compile>
     <Compile Include="Models\Home\Matrix.cs" />
+    <Compile Include="Models\JsonReturnMine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -174,6 +175,12 @@
       <DependentUpon>Minesweeper.edmx</DependentUpon>
       <LastGenOutput>Minesweeper.cs</LastGenOutput>
     </Content>
+    <Content Include="Scripts\bootbox.all.js" />
+    <Content Include="Scripts\bootbox.all.min.js" />
+    <Content Include="Scripts\bootbox.js" />
+    <Content Include="Scripts\bootbox.locales.js" />
+    <Content Include="Scripts\bootbox.locales.min.js" />
+    <Content Include="Scripts\bootbox.min.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <EntityDeploy Include="DataAccess\Minesweeper.edmx">

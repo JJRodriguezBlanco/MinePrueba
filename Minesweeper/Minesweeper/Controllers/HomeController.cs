@@ -1,4 +1,5 @@
 ﻿using Minesweeper.DataAccess;
+using Minesweeper.Models;
 using Minesweeper.Models.Home;
 using System;
 using System.Collections.Generic;
@@ -24,30 +25,41 @@ namespace Minesweeper.Controllers
 
             return View();
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="textArea">Son los datos introducidos por el usuario por pantalla</param>
+        /// <returns></returns>
         [HttpPost]
-        public ActionResult Calculo(string textArea)
+        public ActionResult Calculation(string textArea)
         {
-            // Diferenciar las lineas introducidas, quitando las lineas vacias
-            var lines = textArea.Split('\n').Where(x => x != "").ToList();
+            try
+            {         
+                // Diferenciar las lineas introducidas, quitando las lineas vacias
+                var lines = textArea.Split('\n').Where(x => x != "").ToList();
 
-            //Guardamos en BBDD los datos introducidos por el usuario 
-            Savebbdd(lines);
+                // Guardamos en BBDD los datos introducidos por el usuario 
+                Savebbdd(lines);
 
-            //Obtenemos los datos Introduccidos por el usuario de la BBDD
-            lines = Getbbdd();
+                // Obtenemos los datos Introduccidos por el usuario de la BBDD
+                lines = Getbbdd();
 
-            //Pasamos los datos a una estructura para diferencias las diferentes matrices y la posición X e Y de las casillas.
-            var listMatrix = TransformationToListMatrix(lines);
+                // Pasamos los datos a una estructura para diferencias las diferentes matrices y la posición X e Y de las casillas.
+                var listMatrix = TransformationToListMatrix(lines);
 
-            // Tratar los puntos y pasarlos a numero de bombas
-            ChangePointsToNumberOfBombs(listMatrix);
+                // Tratar los puntos y pasarlos a numero de bombas
+                ChangePointsToNumberOfBombs(listMatrix);
 
-            //Pamos los datos a un string para mostrarlo correctamente en el TextArea.
-            var result = TransformationToString(listMatrix);
+                // Pamos los datos a un string para mostrarlo correctamente en el TextArea.
+                var result = TransformationToString(listMatrix);
 
-            return Json(result, JsonRequestBehavior.AllowGet);
-             
+                return Json(new JsonReturnMine { IsOk= true, data = result }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new JsonReturnMine { IsOk = false, data = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+
         }
 
         #region Private
