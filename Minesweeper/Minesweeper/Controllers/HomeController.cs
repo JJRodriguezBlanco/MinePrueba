@@ -34,23 +34,23 @@ namespace Minesweeper.Controllers
         public ActionResult Calculation(string textArea)
         {
             try
-            {         
-                // Diferenciar las lineas introducidas, quitando las lineas vacias
+            {
+                // Differentiate the introduced lines, removing the empty lines
                 var lines = textArea.Split('\n').Where(x => x != "").ToList();
 
-                // Guardamos en BBDD los datos introducidos por el usuario 
+                // Save the data entered by the user in BBDD 
                 Savebbdd(lines);
 
-                // Obtenemos los datos Introduccidos por el usuario de la BBDD
+                // Get the data entered by the user of the database
                 lines = Getbbdd();
 
-                // Pasamos los datos a una estructura para diferencias las diferentes matrices y la posición X e Y de las casillas.
+                // Pass the data to a structure to differentiate the different matrices and the X and Y position of the boxes.
                 var listMatrix = TransformationToListMatrix(lines);
 
-                // Tratar los puntos y pasarlos a numero de bombas
+                // Change the points for the number of bombs around.
                 ChangePointsToNumberOfBombs(listMatrix);
 
-                // Pamos los datos a un string para mostrarlo correctamente en el TextArea.
+                // We pass the data to a string to display correctly in the TextArea.
                 var result = TransformationToString(listMatrix);
 
                 return Json(new JsonReturnMine { IsOk= true, data = result }, JsonRequestBehavior.AllowGet);
@@ -67,30 +67,22 @@ namespace Minesweeper.Controllers
         private void Savebbdd(List<string> lineas)
         {
             using (var ddbb = new MinesweeperEntities())
-            {
-                try
+            {      
+                var table = ddbb.Input_Mine;
+
+                ddbb.Database.ExecuteSqlCommand("TRUNCATE TABLE Input_Mine");
+
+                for (var d = 0; d < lineas.Count; d++)
                 {
-                    var table = ddbb.Input_Mine;
-
-                    ddbb.Database.ExecuteSqlCommand("TRUNCATE TABLE Input_Mine");
-
-
-                    for (var d = 0; d < lineas.Count; d++)
+                    var entity = new Input_Mine()
                     {
-                        var entity = new Input_Mine()
-                        {
-                            Id = d,
-                            Input = lineas[d]
-                        };
-                        table.Add(entity);
-                    }
-
-                    ddbb.SaveChanges();
-
+                        Id = d,
+                        Input = lineas[d]
+                    };
+                    table.Add(entity);
                 }
-                catch (Exception ex)
-                {
-                }
+
+                ddbb.SaveChanges();          
             }
         }
 
@@ -145,10 +137,10 @@ namespace Minesweeper.Controllers
 
         private void ChangePointsToNumberOfBombs(List<Matrix> listMatrix)
         {
-            //Recorremos la Lista de matrices
+            //Go through the Matrix List
             foreach (var m in listMatrix)
             {
-                //Recorremos la matrices para calcular cuantas bombas hay al rededor
+                //Go through the matrices to calculate how many bombs are around
                 foreach (var a in m.Fields)
                 {
                     a.Value = NumberOfBombs(a, m.Fields);
