@@ -150,7 +150,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Minesweeper.edmx</DependentUpon>
     </Compile>
-    <Compile Include="Models\Home\Matriz.cs" />
+    <Compile Include="Models\Home\Matrix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

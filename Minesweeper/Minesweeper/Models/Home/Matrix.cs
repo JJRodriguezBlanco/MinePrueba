@@ -6,19 +6,19 @@ using System.Web;
 
 namespace Minesweeper.Models.Home
 {
-    public class Matriz
+    public class Matrix
     {
             public string Size { get; set; }
 
-            public List<Datos> campo { get; set; }     
-        public class Datos
+            public List<Field> Fields { get; set; }     
+        public class Field
         {
 
-            public int Fila { get; set; }
+            public int Row { get; set; }
 
-            public int Columna { get; set; }
+            public int Column { get; set; }
 
-            public string valor { get; set; }
+            public string Value { get; set; }
         }
     }
 }

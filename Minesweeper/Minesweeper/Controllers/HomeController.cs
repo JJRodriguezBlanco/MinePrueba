@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
-using static Minesweeper.Models.Home.Matriz;
+using static Minesweeper.Models.Home.Matrix;
 
 namespace Minesweeper.Controllers
 {
@@ -16,96 +16,57 @@ namespace Minesweeper.Controllers
             return View();
         }
 
+        public ActionResult About()
+        {
+            ViewBag.Input = "Input";
+
+            ViewBag.Output = "Output";
+
+            return View();
+        }
+
         [HttpPost]
         public ActionResult Calculo(string textArea)
         {
-            var lineas = textArea.Split('\n').Where(x => x != "").ToList();
+            // Diferenciar las lineas introducidas, quitando las lineas vacias
+            var lines = textArea.Split('\n').Where(x => x != "").ToList();
 
-            //SaveInbbdd(lineas);
+            //Guardamos en BBDD los datos introducidos por el usuario 
+            Savebbdd(lines);
 
-            //lineas = TakeInbbdd();
+            //Obtenemos los datos Introduccidos por el usuario de la BBDD
+            lines = Getbbdd();
 
-            var matrizInput = new List<Matriz>();
-            var matriz = new Matriz();
-            var fila = 0;
-            foreach (var a in lineas)
-            {
-                if (a.IndexOf('.') == -1 && a.IndexOf('*') == -1)
-                {
-                    if (lineas[0] != a)
-                        matrizInput.Add(matriz);
+            //Pasamos los datos a una estructura para diferencias las diferentes matrices y la posición X e Y de las casillas.
+            var listMatrix = TransformationToListMatrix(lines);
 
-                    matriz = new Matriz();
-                    matriz.Size = a;
-                    matriz.campo = new List<Datos>();
-                    fila = 0;
-                }
-                else { 
-                    for (var i= 0; i < a.Length; i++)
-                    {
-                        var dato = new Datos() {
-                            Fila = fila,
-                            Columna = i,
-                            valor = a[i].ToString()
-                        };
-                        matriz.campo.Add(dato);
+            // Tratar los puntos y pasarlos a numero de bombas
+            ChangePointsToNumberOfBombs(listMatrix);
 
-                    }
-                    fila ++;
-                } 
-            }
+            //Pamos los datos a un string para mostrarlo correctamente en el TextArea.
+            var result = TransformationToString(listMatrix);
 
-            if (!matrizInput.Any()) matrizInput.Add(matriz);
-
-            // Tratar los puntos y pasarlos a numeros
-            foreach (var m in matrizInput)
-            { 
-                foreach (var a in m.campo)
-                {
-                    a.valor = numeroBombas(a,m.campo);
-                }
-            }
-
-            // Tratar pasar a json
-            var result = "";
-            for (var m = 0; m < matrizInput.Count; m++)
-            {
-                var numField = m + 1;
-                result = result + "Field #" + numField + "\n";
-                for(var f = 0; f < int.Parse(matrizInput[m].Size.Substring(0, 1)); f++)
-                {
-                    var row = matrizInput[m].campo.Where(x => x.Fila == f).Select(x => x.valor).ToList();
-                    result = result + string.Join("", row) + "\n";
-                }
-                result = result + "\n";
-
-            }
             return Json(result, JsonRequestBehavior.AllowGet);
              
         }
 
-        private List<string> TakeInbbdd()
-        {
-            using (var ddbb = new MinesweeperEntities())
-            {
-                var dto = ddbb.Input_Mine.Select(x=> x.Input).ToList();
-                return dto;     
-            }
-        }
+        #region Private
 
-        private void SaveInbbdd(List<string> lineas)
+        private void Savebbdd(List<string> lineas)
         {
             using (var ddbb = new MinesweeperEntities())
             {
-                try{ 
+                try
+                {
                     var table = ddbb.Input_Mine;
 
                     ddbb.Database.ExecuteSqlCommand("TRUNCATE TABLE Input_Mine");
 
 
-                    for (var d = 0; d < lineas.Count;d++)
+                    for (var d = 0; d < lineas.Count; d++)
                     {
-                        var entity = new Input_Mine() {
+                        var entity = new Input_Mine()
+                        {
                             Id = d,
                             Input = lineas[d]
                         };
@@ -121,48 +82,117 @@ namespace Minesweeper.Controllers
             }
         }
 
-        private string numeroBombas(Datos a, List<Datos> campo)
+        private List<string> Getbbdd()
         {
-            var fila = a.Fila;
-            var columna = a.Columna;
-            var valor = a.valor;
-
-            if (valor == "*")
+            using (var ddbb = new MinesweeperEntities())
             {
-                return valor;
+                var dto = ddbb.Input_Mine.Select(x=> x.Input).ToList();
+                return dto;     
+            }
+        }
+
+        private List<Matrix> TransformationToListMatrix(List<string> lines)
+        {
+
+            var listMatrix = new List<Matrix>();
+            var matriz = new Matrix();
+            var fila = 0;
+            foreach (var a in lines)
+            {
+                if (a.IndexOf('.') == -1 && a.IndexOf('*') == -1)
+                {
+                    if (lines[0] != a)
+                        listMatrix.Add(matriz);
+
+                    matriz = new Matrix();
+                    matriz.Size = a;
+                    matriz.Fields = new List<Field>();
+                    fila = 0;
+                }
+                else
+                {
+                    for (var i = 0; i < a.Length; i++)
+                    {
+                        var dato = new Field()
+                        {
+                            Row = fila,
+                            Column = i,
+                            Value = a[i].ToString()
+                        };
+                        matriz.Fields.Add(dato);
+
+                    }
+                    fila++;
+                }
+            }
+
+            if (!listMatrix.Any()) listMatrix.Add(matriz);
+
+            return listMatrix;
+        }
+
+        private void ChangePointsToNumberOfBombs(List<Matrix> listMatrix)
+        {
+            //Recorremos la Lista de matrices
+            foreach (var m in listMatrix)
+            {
+                //Recorremos la matrices para calcular cuantas bombas hay al rededor
+                foreach (var a in m.Fields)
+                {
+                    a.Value = NumberOfBombs(a, m.Fields);
+                }
+            }
+        }
+
+        private string NumberOfBombs(Field a, List<Field> campo)
+        {
+            var row = a.Row;
+            var column = a.Column;
+            var value = a.Value;
+
+            if (value == "*")
+            {
+                return value;
             }
             else
             {
-                var list2 = new List<Datos>();
-                list2.Add(campo.Find(x => x.Fila == fila - 1 && x.Columna == columna - 1));
-                list2.Add(campo.Find(x => x.Fila == fila - 1 && x.Columna == columna));
-                list2.Add(campo.Find(x => x.Fila == fila - 1 && x.Columna == columna + 1));
+                var listField = new List<Field>();
+                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column - 1));
+                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column));
+                listField.Add(campo.Find(x => x.Row == row - 1 && x.Column == column + 1));
 
-                list2.Add(campo.Find(x => x.Fila == fila && x.Columna == columna + 1));
-                list2.Add(campo.Find(x => x.Fila == fila && x.Columna == columna - 1));
+                listField.Add(campo.Find(x => x.Row == row && x.Column == column + 1));
+                listField.Add(campo.Find(x => x.Row == row && x.Column == column - 1));
 
-                list2.Add(campo.Find(x => x.Fila == fila + 1 && x.Columna == columna - 1));
-                list2.Add(campo.Find(x => x.Fila == fila + 1 && x.Columna == columna));
-                list2.Add(campo.Find(x => x.Fila == fila + 1 && x.Columna == columna + 1));
+                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column - 1));
+                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column));
+                listField.Add(campo.Find(x => x.Row == row + 1 && x.Column == column + 1));
 
-                var count = list2.Where(x => x != null).Count(x=> x.valor == "*");
+                var countBombs = listField.Where(x => x != null).Count(x=> x.Value == "*");
 
-                return count.ToString();
+                return countBombs.ToString();
+            }
+        }
+
+        private string TransformationToString(List<Matrix> listMatrix)
+        {
+            var result = "";
+
+            for (var m = 0; m < listMatrix.Count; m++)
+            {
+                var numField = m + 1;
+                result = result + "Field #" + numField + "\n";
+                for (var f = 0; f < int.Parse(listMatrix[m].Size.Substring(0, 1)); f++)
+                {
+                    var row = listMatrix[m].Fields.Where(x => x.Row == f).Select(x => x.Value).ToList();
+                    result = result + string.Join("", row) + "\n";
+                }
             }
 
-
-
-            throw new NotImplementedException();
+            return result;
         }
 
-        public ActionResult About()
-        {
-            ViewBag.Input = "Input";
-
-            ViewBag.Output = "Output";
-
-            return View();
-        }
+        #endregion
 
     }
 
