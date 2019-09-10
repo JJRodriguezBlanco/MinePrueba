@@ -51,7 +51,7 @@ namespace Minesweeper.Controllers
                 Savebbdd(lines);
 
                 // Get the data entered by the user of the database
-                lines = Getbbdd();
+                lines = Getbbdd(); 
 
                 // Pass the data to a structure to differentiate the different matrices and the X and Y position of the boxes.
                 var listMatrix = TransformationToListMatrix(lines);
